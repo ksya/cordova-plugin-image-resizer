@@ -1,0 +1,50 @@
+{
+  "name": "net.ksya.cordova.plugin.imageresizer",
+  "cordova_name": "Cordova ImageResizer Plugin",
+  "version": "0.1.1",
+  "description": "Resize image with image URI input",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ksya/cordova-plugin-image-resizer.git"
+  },
+  "keywords": [
+    "cordova",
+    "device",
+    "resize",
+    "image",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios",
+    "cordova-windows"
+  ],
+  "platforms": [
+    "ios",
+    "android",
+    "windows"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=3.6.0"
+    },
+    {
+      "name": "cordova-plugman",
+      "version": ">=4.3.0"
+    },
+    {
+      "name": "cordova-windows",
+      "version": ">=4.2.0"
+    }
+  ],
+  "dependencies": {
+  },
+  "author": "ksya",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ksya/cordova-plugin-image-resizer/issues"
+  },
+  "homepage": "https://github.com/ksya/cordova-plugin-image-resize#readme"
+}

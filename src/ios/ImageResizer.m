@@ -5,7 +5,7 @@
 
 #define PROTONET_PHOTO_PREFIX @"protonet_"
 
-static NSInteger count = 0;
+//static NSInteger count = 0;
 
 @implementation ImageResizer {
     UIImage* sourceImage;
@@ -67,10 +67,10 @@ static NSInteger count = 0;
 
     UIGraphicsEndImageContext();
     NSData *imageData = UIImageJPEGRepresentation(tempImage, [quality floatValue] / 100.0f );
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
-    NSString *imagePath =[documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"img%d.jpeg",count]];
-    count++;
+
+    //NSString *imagePath =[documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"img%d.jpeg",count]];
+    NSString* imagePath = [self tempFilePath:@"jpg"];
+    //count++;
     CDVPluginResult* result = nil;
 
     if (![imageData writeToFile:imagePath atomically:NO])
@@ -83,6 +83,23 @@ static NSInteger count = 0;
     }
 
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+}
+
+#pragma mark - Utilites
+
+- (NSString*)tempFilePath:(NSString*)extension
+{
+    NSString* docsPath = [NSTemporaryDirectory()stringByStandardizingPath];
+    NSFileManager* fileMgr = [[NSFileManager alloc] init]; // recommended by Apple (vs [NSFileManager defaultManager]) to be threadsafe
+    NSString* filePath;
+    
+    // generate unique file name
+    int i = 1;
+    do {
+        filePath = [NSString stringWithFormat:@"%@/%@%03d.%@", docsPath, CDV_PHOTO_PREFIX, i++, extension];
+    } while ([fileMgr fileExistsAtPath:filePath]);
+    
+    return filePath;
 }
 
 @end

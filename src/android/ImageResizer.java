@@ -112,7 +112,7 @@ public class ImageResizer extends CordovaPlugin {
         File folder = null;
         if(folderName == null)
         {
-            folder = new File(Environment.getExternalStorageDirectory().toString());
+            folder = new File(getTempDirectoryPath() + "/" + System.currentTimeMillis()+ "-resized.jpg");
         }
         else
         {
@@ -132,7 +132,7 @@ public class ImageResizer extends CordovaPlugin {
         
         if(success) {
             if(fileName == null){
-                fileName = System.currentTimeMillis() + ".jpg";
+                fileName = System.currentTimeMillis()+ "-resized.jpg";
             }
             File file = new File(folder, fileName);
             if(file.exists()) file.delete();
@@ -223,5 +223,23 @@ public class ImageResizer extends CordovaPlugin {
             return false;
         }
         return true;
+    }
+
+    private String getTempDirectoryPath() {
+        File cache = null;
+
+        // SD Card Mounted
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            cache = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
+                    "/Android/data/" + cordova.getActivity().getPackageName() + "/cache/");
+        }
+        // Use internal storage
+        else {
+            cache = cordova.getActivity().getCacheDir();
+        }
+
+        // Create the cache directory if it doesn't exist
+        cache.mkdirs();
+        return cache.getAbsolutePath();
     }
 }
