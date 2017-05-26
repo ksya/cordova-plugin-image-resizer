@@ -1,4 +1,4 @@
-package info.protonet.imageresizer;
+package net.ksya.cordova.plugin.imageresizer;
 
 import java.io.FileNotFoundException;
 import java.io.BufferedInputStream;
@@ -112,7 +112,7 @@ public class ImageResizer extends CordovaPlugin {
         File folder = null;
         if(folderName == null)
         {
-            folder = new File(getTempDirectoryPath() + "/" + System.currentTimeMillis()+ "-resized.jpg");
+            folder = new File(getTempDirectoryPath());
         }
         else
         {
