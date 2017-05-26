@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        id="net.ksya.imageresizer" version="0.1.1">
+        id="net.ksya.cordova.plugin.imageresizer" version="0.1.1">
   <name>Image Resizer</name>
   <description>Plugin for resizing images only with the uri of the image.</description>
   <author>Joschka Schulz</author>
   <license>Apache 2.0</license>
   <keywords>cordova,device,resize,image</keywords>
-  <repo>https://github.com/ksya/cordova-plugin-image-resizer.git</repo>
+  <repo>https://github.com/ksya/net.ksya.cordova.plugin.imageresizer.git</repo>
 
   <js-module src="www/image_resizer.js" name="ImageResizer">
     <clobbers target="ImageResizer" />
@@ -17,14 +17,14 @@
   <platform name="android">
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="ImageResizer">
-        <param name="android-package" value="net.ksya.imageresizer.ImageResizer"/>
+        <param name="android-package" value="net.ksya.cordova.plugin.imageresizer.ImageResizer"/>
       </feature>
     </config-file>
     <config-file target="AndroidManifest.xml" parent="/*">
       <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     </config-file>
 
-    <source-file src="src/android/ImageResizer.java" target-dir="src/net/ksya/imageresizer" />
+    <source-file src="src/android/ImageResizer.java" target-dir="src/net/ksya/cordova/plugin/imageresizer" />
   </platform>
 
   <platform name="ios">
