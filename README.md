@@ -9,7 +9,7 @@ Edit by ksya: Save in a temporary directory (cache) by default for Android and a
 
 Use the Cordova CLI and type in the following command:
 
-`cordova plugin add https://github.com/ksya/cordova-plugin-image-resizer.git`
+`cordova plugin add https://github.com/ksya/net.ksya.cordova.plugin.imageresizer.git`
 
 ## Sample Code
 
