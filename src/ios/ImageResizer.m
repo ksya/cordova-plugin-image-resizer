@@ -8,7 +8,6 @@
 //static NSInteger count = 0;
 
 @implementation ImageResizer {
-    UIImage* sourceImage;
 }
 
 - (void) resize:(CDVInvokedUrlCommand*)command
@@ -26,46 +25,32 @@
 
     NSString* quality = [arguments objectForKey:@"quality"];
     CGSize frameSize = CGSizeMake([[arguments objectForKey:@"width"] floatValue], [[arguments objectForKey:@"height"] floatValue]);
-    NSString* fileName = [arguments objectForKey:@"fileName"];
 
     //    //Get the image from the path
     NSURL* imageURL = [NSURL URLWithString:imageUrlString];
 
-    sourceImage = [UIImage imageWithData: [NSData dataWithContentsOfURL: imageURL]];
+    __block UIImage *tempImage = nil;
+    PHFetchResult *savedAssets = [PHAsset fetchAssetsWithALAssetURLs:@[imageURL] options:nil];	
+
 
     PHFetchResult *savedAssets = [PHAsset fetchAssetsWithLocalIdentifiers:@[fileName] options:nil];
     [savedAssets enumerateObjectsUsingBlock:^(PHAsset *asset, NSUInteger idx, BOOL *stop) {
         //this gets called for every asset from its localIdentifier you saved
 
-        [[PHImageManager defaultManager]
-         requestImageDataForAsset:asset
-         options:imageRequestOptions
-         resultHandler:^(NSData *imageData, NSString *dataUTI,
-                         UIImageOrientation orientation,
-                         NSDictionary *info)
-         {
-             sourceImage  = [UIImage imageWithData:imageData];
-         }];
+        [[PHImageManager defaultManager] requestImageForAsset:asset
+                           targetSize:frameSize
+                          contentMode:PHImageContentModeDefault
+                              options:imageRequestOptions
+                        resultHandler:^void(UIImage *image, NSDictionary *info) {
+                            tempImage = image;
+                        }];
 
     }];
 
-    NSLog(@"image resizer:%@",  (sourceImage  ? @"image exsist" : @"null" ));
-
-    UIImage *tempImage = nil;
-    CGSize targetSize = frameSize;
-    UIGraphicsBeginImageContext(targetSize);
-
-    CGRect thumbnailRect = CGRectMake(0, 0, 0, 0);
-    thumbnailRect.origin = CGPointMake(0.0,0.0);
-    thumbnailRect.size.width  = targetSize.width;
-    thumbnailRect.size.height = targetSize.height;
-
-    [sourceImage drawInRect:thumbnailRect];
-
-    tempImage = UIGraphicsGetImageFromCurrentImageContext();
+   
     NSLog(@"image resizer:%@",  (tempImage  ? @"image exsist" : @"null" ));
 
-    UIGraphicsEndImageContext();
+
     NSData *imageData = UIImageJPEGRepresentation(tempImage, [quality floatValue] / 100.0f );
 
     //NSString *imagePath =[documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"img%d.jpeg",count]];
