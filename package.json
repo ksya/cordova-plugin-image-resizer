@@ -1,7 +1,7 @@
 {
   "name": "net.ksya.cordova.plugin.imageresizer",
   "cordova_name": "Cordova ImageResizer Plugin",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Resize image with image URI input",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
