@@ -4,6 +4,7 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 
 #define PROTONET_PHOTO_PREFIX @"protonet_"
+#define CDV_PHOTO_PREFIX @"cdv_photo_"
 
 //static NSInteger count = 0;
 
