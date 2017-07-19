@@ -4,11 +4,11 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 
 #define PROTONET_PHOTO_PREFIX @"protonet_"
-#define CDV_PHOTO_PREFIX @"cdv_photo_"
 
-//static NSInteger count = 0;
+static NSInteger count = 0;
 
 @implementation ImageResizer {
+    UIImage* sourceImage;
 }
 
 - (void) resize:(CDVInvokedUrlCommand*)command
@@ -26,37 +26,77 @@
 
     NSString* quality = [arguments objectForKey:@"quality"];
     CGSize frameSize = CGSizeMake([[arguments objectForKey:@"width"] floatValue], [[arguments objectForKey:@"height"] floatValue]);
+    NSString* fileName = [arguments objectForKey:@"fileName"];
 
     //    //Get the image from the path
     NSURL* imageURL = [NSURL URLWithString:imageUrlString];
 
-    __block UIImage *tempImage = nil;
-    PHFetchResult *savedAssets = [PHAsset fetchAssetsWithALAssetURLs:@[imageURL] options:nil];	
-
+    sourceImage = [UIImage imageWithData: [NSData dataWithContentsOfURL: imageURL]];
 
     PHFetchResult *savedAssets = [PHAsset fetchAssetsWithLocalIdentifiers:@[fileName] options:nil];
     [savedAssets enumerateObjectsUsingBlock:^(PHAsset *asset, NSUInteger idx, BOOL *stop) {
         //this gets called for every asset from its localIdentifier you saved
 
-        [[PHImageManager defaultManager] requestImageForAsset:asset
-                           targetSize:frameSize
-                          contentMode:PHImageContentModeDefault
-                              options:imageRequestOptions
-                        resultHandler:^void(UIImage *image, NSDictionary *info) {
-                            tempImage = image;
-                        }];
+        [[PHImageManager defaultManager]
+         requestImageDataForAsset:asset
+         options:imageRequestOptions
+         resultHandler:^(NSData *imageData, NSString *dataUTI,
+                         UIImageOrientation orientation,
+                         NSDictionary *info)
+         {
+             sourceImage  = [UIImage imageWithData:imageData];
+         }];
 
     }];
 
-   
+    NSLog(@"image resizer:%@",  (sourceImage  ? @"image exists" : @"null" ));
+    
+    UIImage *tempImage = nil;
+    CGSize targetSize = frameSize;
+    
+    CGRect thumbnailRect = CGRectMake(0, 0, 0, 0);
+    thumbnailRect.origin = CGPointMake(0.0,0.0);
+
+    // get original image dimensions
+    CGFloat heightInPoints = sourceImage.size.height;
+    CGFloat heightInPixels = heightInPoints * sourceImage.scale;
+    CGFloat widthInPoints = sourceImage.size.width;
+    CGFloat widthInPixels = widthInPoints * sourceImage.scale;
+    
+    // calculate the target dimensions in a way that preserves the original aspect ratio
+    CGFloat newWidth = targetSize.width;
+    CGFloat newHeight = targetSize.height;
+    
+    if (heightInPixels > widthInPixels) {
+        // vertical image: use targetSize.height as reference for scaling
+        newWidth = widthInPixels * newHeight / heightInPixels;
+    } else {
+        // horizontal image: use targetSize.width as reference
+        newHeight = heightInPixels * newWidth / widthInPixels;
+    }
+    
+    thumbnailRect.size.width  = newWidth;
+    thumbnailRect.size.height = newHeight;
+    targetSize.width = newWidth;
+    targetSize.height = newHeight;
+    
+    UIGraphicsBeginImageContext(targetSize);
+    [sourceImage drawInRect:thumbnailRect];
+
+    tempImage = UIGraphicsGetImageFromCurrentImageContext();
     NSLog(@"image resizer:%@",  (tempImage  ? @"image exsist" : @"null" ));
 
-
+    UIGraphicsEndImageContext();
     NSData *imageData = UIImageJPEGRepresentation(tempImage, [quality floatValue] / 100.0f );
-
-    //NSString *imagePath =[documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"img%d.jpeg",count]];
-    NSString* imagePath = [self tempFilePath:@"jpg"];
-    //count++;
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    NSString *cachesDirectory = [paths objectAtIndex:0];
+    BOOL isDir = NO;
+    NSError *error;
+    if (! [[NSFileManager defaultManager] fileExistsAtPath:cachesDirectory isDirectory:&isDir] && isDir == NO) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:cachesDirectory withIntermediateDirectories:NO attributes:nil error:&error];
+    }
+    NSString *imagePath =[cachesDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"img%d.jpeg",count]];
+    count++;
     CDVPluginResult* result = nil;
 
     if (![imageData writeToFile:imagePath atomically:NO])
@@ -69,23 +109,6 @@
     }
 
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-}
-
-#pragma mark - Utilites
-
-- (NSString*)tempFilePath:(NSString*)extension
-{
-    NSString* docsPath = [NSTemporaryDirectory()stringByStandardizingPath];
-    NSFileManager* fileMgr = [[NSFileManager alloc] init]; // recommended by Apple (vs [NSFileManager defaultManager]) to be threadsafe
-    NSString* filePath;
-    
-    // generate unique file name
-    int i = 1;
-    do {
-        filePath = [NSString stringWithFormat:@"%@/%@%03d.%@", docsPath, CDV_PHOTO_PREFIX, i++, extension];
-    } while ([fileMgr fileExistsAtPath:filePath]);
-    
-    return filePath;
 }
 
 @end
